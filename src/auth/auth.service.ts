@@ -1,26 +1,178 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthInput } from './dto/create-auth.input';
-import { UpdateAuthInput } from './dto/update-auth.input';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { PrismaService } from 'src/common/services/prisma.service';
+import { ConfigService } from '@nestjs/config';
+import { EmailService } from 'src/common/services/email.service';
+import { AuthResponse, LoginInput, RestorePasswordInput } from './dto';
+import { IContextUser } from './interfaces/context-user';
+import * as encrypter from 'bcryptjs';
+import { ResetPasswordInput } from './dto/inputs/resetPwd.input';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  create(createAuthInput: CreateAuthInput) {
-    return 'This action adds a new auth';
+  constructor(
+    // private readonly userService: UserService,
+    private readonly jwtService: JwtService,
+    private readonly prisma: PrismaService,
+    private readonly configService: ConfigService,
+    private readonly emailService: EmailService
+  ) {}
+
+  private getJwtToken(userId: number) {
+    return this.jwtService.sign({ id: userId, msg: 'generated' });
   }
 
-  findAll() {
-    return `This action returns all auth`;
+  async login(loginInput: LoginInput): Promise<AuthResponse> {
+    // console.log(loginInput)
+    const { nickName, password, idCompany } = loginInput;
+
+    const user = await this.prisma.user.findFirst({
+      where: {nickName, isActive: true},
+    });
+    // if (!user) throw new BadRequestException('Usuario no encontrado');
+    if (!user) throw new BadRequestException('Email/password incorrectos');
+    // if (!user.UserProfile || user.UserProfile.length <= 0) throw new BadRequestException('No tiene perfiles asignados');
+    // console.log(user);
+    // console.log(user.UserProfile)
+    // console.log(user.UserProfile[0].SystemProfile);
+    // const profiles = user.UserProfile.map(prof => prof.SystemProfile.Module);
+    // console.log({profiles});
+    // console.log(profiles.some(prof => prof.description=='FFM WEB'))
+    // if(!profiles.some(prof => prof.description=='FFM WEB')) throw new BadRequestException('No tiene permiso para web');
+
+    if (!encrypter.compareSync(password, user.password)) throw new BadRequestException('Email/password incorrectos');
+
+    const token = this.getJwtToken(user.id);
+
+    // console.log({user})
+    return {
+      token,
+      // user,
+    };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
+  async restorePassword(restorePasswordInput: RestorePasswordInput): Promise<boolean> {
+    // console.log(loginInput)
+    const { nickName } = restorePasswordInput;
+    const user = await this.prisma.user.findFirst({where: {nickName: nickName.trim()}});
+    if (!user) throw new BadRequestException('Usuario no encontrado');
+
+    const frontUrl = this.configService.get<string>('FRONT_URL');
+
+
+    const token = this.getJwtToken(user.id);
+
+    // await this.prisma.resetPassword.updateMany({
+    //   where: {
+    //     email: nickName,
+    //   },
+    //   data: {
+    //     status: true,
+    //   },
+    // });
+
+    // const template = restorePasswordTemplate({
+    //   url: frontUrl + '/auth/restore/' + token,
+    //   // name: AES.decrypt(user.firstName, secret).toString(enc.Utf8),
+    // });
+    // this.emailService.sendEmail({
+    //   emailTitle: 'FFM APP',
+    //   emailSubject: '¿Olvidó su contraseña?',
+    //   emailReciever: nickName.trim(),
+    //   template: template,
+    // });
+
+    // console.log({user})
+    return true;
   }
 
-  update(id: number, updateAuthInput: UpdateAuthInput) {
-    return `This action updates a #${id} auth`;
+  async validateUser(idUser: number) {
+    const user = await this.prisma.user.findUnique({
+      where:{id: idUser},
+    });
+    // console.log('validate-user',user)
+    if(!user) throw new NotFoundException('User not found');
+    if (!user.isActive) throw new UnauthorizedException('User inactive');
+
+    return user;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+  revalidateToken(user: IContextUser): AuthResponse {
+    const token = this.getJwtToken(user.idUser);
+
+    return {
+      token,
+    };
+  }
+
+  async refreshTokens(idUser: number, refreshToken: string) {
+    const user = await this.prisma.user.findFirst({
+      where: { id: idUser },
+      // include: { Profile: true },
+    });
+    // if (!user || !user.refreshToken)
+    //   throw new ForbiddenException('Access Denied');
+    // const refreshTokenMatches = await encrypter.compare(
+    //   refreshToken,
+    //   user.refreshToken,
+    // );
+    // if (!refreshTokenMatches) throw new ForbiddenException('Access Denied');
+    const tokens = await this.getTokens(user);
+    await this.updateToken(idUser, tokens.refresh_token);
+    return tokens;
+  }
+
+  protected async updateToken(idUser, refreshToken) {
+    const salt = encrypter.genSaltSync();
+    const hashedRefreshToken = encrypter.hashSync(refreshToken.trim(), salt);
+
+    // await this.prisma.user.update({
+    //   where: { id: idUser },
+    //   data: { refreshToken: hashedRefreshToken },
+    // });
+  }
+
+  protected async getTokens(user) {
+    const token = this.getJwtToken(
+      user.idUser.toString(),
+      // this.configService.get<string>('jwt.expiration'),
+      // user.Profile.description,
+      // this.configService.get<string>('jwt.access_token'),
+    );
+
+    const refresh_token: string = this.getJwtToken(
+      user.idUser.toString(),
+      // this.configService.get<string>('jwt.refresh_expiration'),
+      // user.Profile.description,
+      // this.configService.get<string>('jwt.refresh_token'),
+    );
+
+    return {
+      refresh_token,
+      token,
+    };
+  }
+
+  async resetPassword (resetPwdInput: ResetPasswordInput, contextUser: IContextUser) {
+    const { idUser } = resetPwdInput;
+
+    const existUser = await this.prisma.user.findFirst({
+      where: {id: idUser}
+    });
+
+    if (!existUser) throw new BadRequestException('Email/password incorrectos');
+    
+    const newPassword = (Math.random() + 1).toString(36).substring(3);
+
+    const salt = encrypter.genSaltSync();
+    const encryptedPassword = encrypter.hashSync(newPassword.trim(), salt);
+    
+    // await this.prisma.user.update({
+    //   data: {password: encryptedPassword, updateAt: new Date(), updateBy: contextUser.idUser},
+    //   where: {idUser: existUser.idUser}
+    // });
+
+    // console.log("random:", newPassword);
+    return newPassword;
   }
 }

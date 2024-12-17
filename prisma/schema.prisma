@@ -24,7 +24,7 @@ model User {
   isActive  Boolean   @default(true)
   isDeleted Boolean   @default(false)
   createdAt DateTime  @default(now())
-  createdBy Int
+  createdBy Int?
   updatedAt DateTime?
   updatedBy Int?
   deletedAt DateTime?

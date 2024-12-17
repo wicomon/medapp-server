@@ -2,28 +2,71 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type Auth {
-  """Example field (placeholder)"""
-  exampleField: Int!
+type AuthResponse {
+  token: String!
+}
+
+type User {
+  id: Int!
+  firstName: String!
+  lastName: String!
+  nickName: String!
+  email: String!
+  image: String
+  password: String!
+  isActive: Boolean!
+  createdAt: Float!
+  createdBy: Int
+  updatedAt: Float
+  updatedBy: Int
+  deletedAt: Float
+  deletedBy: Int
 }
 
 type Query {
-  auth(id: Int!): Auth!
+  authRevalidate: AuthResponse!
+  userFindAll: [User!]!
+  userFindById(id: Int!): User!
 }
 
 type Mutation {
-  createAuth(createAuthInput: CreateAuthInput!): Auth!
-  updateAuth(updateAuthInput: UpdateAuthInput!): Auth!
-  removeAuth(id: Int!): Auth!
+  authLogin(loginInput: LoginInput!): AuthResponse!
+  authRestore(loginInput: RestorePasswordInput!): AuthResponse!
+  authResetPassword(resetPwdInput: ResetPasswordInput!): String!
+  userCreate(createUserInput: CreateUserInput!): Boolean!
+  userUpdate(updateUserInput: UpdateUserInput!): Boolean!
+  userDelete(id: Int!): Boolean!
 }
 
-input CreateAuthInput {
-  """Example field (placeholder)"""
-  exampleField: Int!
+input LoginInput {
+  nickName: String!
+  password: String!
+  idCompany: Int!
 }
 
-input UpdateAuthInput {
-  """Example field (placeholder)"""
-  exampleField: Int
+input RestorePasswordInput {
+  nickName: String!
+}
+
+input ResetPasswordInput {
+  idUser: Int!
+}
+
+input CreateUserInput {
+  firstName: String!
+  lastName: String!
+  nickName: String!
+  email: String!
+  image: String
+  password: String!
+}
+
+input UpdateUserInput {
+  firstName: String
+  lastName: String
+  nickName: String
+  email: String
+  image: String
+  password: String
   id: Int!
 }
