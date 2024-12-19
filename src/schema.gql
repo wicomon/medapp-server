@@ -2,6 +2,15 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type ContextUser {
+  id: Int!
+  email: String!
+  nickName: String!
+  firstName: String!
+  lastName: String!
+  isActive: Boolean!
+}
+
 type AuthResponse {
   token: String!
 }
@@ -15,6 +24,7 @@ type User {
   image: String
   password: String!
   isActive: Boolean!
+  rolId: Int!
   createdAt: Float!
   createdBy: Int
   updatedAt: Float
@@ -24,6 +34,7 @@ type User {
 }
 
 type Query {
+  authValidateToken: ContextUser!
   authRevalidate: AuthResponse!
   userFindAll: [User!]!
   userFindById(id: Int!): User!
@@ -41,7 +52,6 @@ type Mutation {
 input LoginInput {
   nickName: String!
   password: String!
-  idCompany: Int!
 }
 
 input RestorePasswordInput {
@@ -59,6 +69,7 @@ input CreateUserInput {
   email: String!
   image: String
   password: String!
+  rolId: Int!
 }
 
 input UpdateUserInput {
@@ -68,5 +79,6 @@ input UpdateUserInput {
   email: String
   image: String
   password: String
+  rolId: Int
   id: Int!
 }

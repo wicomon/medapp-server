@@ -3,10 +3,10 @@ import { PrismaService } from 'src/common/services/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import { EmailService } from 'src/common/services/email.service';
 import { AuthResponse, LoginInput, RestorePasswordInput } from './dto';
-import { IContextUser } from './interfaces/context-user';
 import * as encrypter from 'bcryptjs';
 import { ResetPasswordInput } from './dto/inputs/resetPwd.input';
 import { JwtService } from '@nestjs/jwt';
+import { ContextUser } from './entities/auth.entity';
 
 @Injectable()
 export class AuthService {
@@ -24,12 +24,11 @@ export class AuthService {
 
   async login(loginInput: LoginInput): Promise<AuthResponse> {
     // console.log(loginInput)
-    const { nickName, password, idCompany } = loginInput;
+    const { nickName, password } = loginInput;
 
     const user = await this.prisma.user.findFirst({
-      where: {nickName, isActive: true},
+      where: {nickName, isDeleted: false},
     });
-    // if (!user) throw new BadRequestException('Usuario no encontrado');
     if (!user) throw new BadRequestException('Email/password incorrectos');
     // if (!user.UserProfile || user.UserProfile.length <= 0) throw new BadRequestException('No tiene perfiles asignados');
     // console.log(user);
@@ -39,9 +38,11 @@ export class AuthService {
     // console.log({profiles});
     // console.log(profiles.some(prof => prof.description=='FFM WEB'))
     // if(!profiles.some(prof => prof.description=='FFM WEB')) throw new BadRequestException('No tiene permiso para web');
-
+    
     if (!encrypter.compareSync(password, user.password)) throw new BadRequestException('Email/password incorrectos');
 
+    if (!user.isActive) throw new BadRequestException('Usuario desactivado');
+    
     const token = this.getJwtToken(user.id);
 
     // console.log({user})
@@ -49,6 +50,11 @@ export class AuthService {
       token,
       // user,
     };
+  }
+
+  async validateToken(contextUser: ContextUser) {
+    // console.log('validate user service called')
+    return contextUser;
   }
 
   async restorePassword(restorePasswordInput: RestorePasswordInput): Promise<boolean> {
@@ -87,6 +93,7 @@ export class AuthService {
   }
 
   async validateUser(idUser: number) {
+    // console.log('validate user service called')
     const user = await this.prisma.user.findUnique({
       where:{id: idUser},
     });
@@ -97,8 +104,8 @@ export class AuthService {
     return user;
   }
 
-  revalidateToken(user: IContextUser): AuthResponse {
-    const token = this.getJwtToken(user.idUser);
+  revalidateToken(user: ContextUser): AuthResponse {
+    const token = this.getJwtToken(user.id);
 
     return {
       token,
@@ -153,7 +160,7 @@ export class AuthService {
     };
   }
 
-  async resetPassword (resetPwdInput: ResetPasswordInput, contextUser: IContextUser) {
+  async resetPassword (resetPwdInput: ResetPasswordInput, contextUser: ContextUser) {
     const { idUser } = resetPwdInput;
 
     const existUser = await this.prisma.user.findFirst({

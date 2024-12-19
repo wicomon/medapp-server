@@ -1,11 +1,10 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
-import { Auth } from './entities/auth.entity';
+import { Auth, ContextUser } from './entities/auth.entity';
 import { AuthResponse, LoginInput, RestorePasswordInput } from './dto';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
-import { IContextUser } from './interfaces/context-user';
 import { ResetPasswordInput } from './dto/inputs/resetPwd.input';
 import { RefreshTokenGuard } from './guards/refresh-token.guard';
 
@@ -23,10 +22,20 @@ export class AuthResolver {
     return this.authService.restorePassword(restorePasswordInput);
   }
 
+  @Query(() => ContextUser , {name: 'authValidateToken'})
+  @UseGuards( JwtAuthGuard )
+  validateToken(
+    @CurrentUser(/* [ValidRoles.admin] */ ) user: ContextUser
+  ){
+    // console.log('revaldiatetoken')
+    // console.log({user})
+    return this.authService.validateToken(user);
+  }
+
   @Query(() => AuthResponse , {name: 'authRevalidate'})
   @UseGuards( JwtAuthGuard )
   revalidateToken(
-    @CurrentUser(/* [ValidRoles.admin] */ ) user: IContextUser
+    @CurrentUser(/* [ValidRoles.admin] */ ) user: ContextUser
   ){
     // console.log('revaldiatetoken')
     // console.log({user})
@@ -37,7 +46,7 @@ export class AuthResolver {
   @UseGuards( JwtAuthGuard )
   resetPwd(
     @Args('resetPwdInput') resetPwdInput: ResetPasswordInput,
-    @CurrentUser(/* [ValidRoles.admin] */ ) contextUser: IContextUser
+    @CurrentUser(/* [ValidRoles.admin] */ ) contextUser: ContextUser
   ){
     return this.authService.resetPassword(resetPwdInput, contextUser);
   }

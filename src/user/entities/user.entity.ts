@@ -24,7 +24,10 @@ export class User {
   password: string;
 
   @Field(() => Boolean)
-  isActive: string;
+  isActive: boolean;
+
+  @Field(() => Int)
+  rolId: number;
 
   @Field(() => Float)
   createdAt: number;

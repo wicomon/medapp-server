@@ -9,10 +9,7 @@ export class LoginInput{
   nickName: string;
 
   @Field(() => String)
+  @IsString()
   @MinLength(5,{message: 'Contraseña debe ser mínimo de 5 digitos'})
   password: string;
-
-  @Field(() => Int)
-  @IsNumber()
-  idCompany: number
 }

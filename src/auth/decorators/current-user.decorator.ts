@@ -7,17 +7,19 @@ import {
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { ValidRoles } from '../enum/valid-roles.enum';
 import { User } from 'src/user/entities/user.entity';
+import { ContextUser } from '../entities/auth.entity';
 
 export const CurrentUser = createParamDecorator(
   async (roles: ValidRoles[] = [], context: ExecutionContext) => {
     const ctx = GqlExecutionContext.create(context);
     const user: User = ctx.getContext().req.user;
-    const userContext = {
-      idUser: user.id,
+    const userContext: ContextUser = {
+      id: user.id,
       nickName: user.nickName,
       firstName: user.firstName,
       lastName: user.lastName,
       isActive: user.isActive,
+      email: user.email,
       // roles: user.UserProfile.map( usrProfile => usrProfile.SystemProfile.Profile.description || '')
     };
     // console.log('decorator -----------------------------------', userContext);

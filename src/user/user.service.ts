@@ -20,7 +20,7 @@ export class UserService {
   }
 
   async findAll() {
-    return await this.prisma.user.findMany({})
+    return await this.prisma.user.findMany({});
   }
 
   async create(createUserInput: CreateUserInput) {
@@ -30,7 +30,8 @@ export class UserService {
       lastName,
       nickName,
       password,
-      image
+      image,
+      rolId,
     } = createUserInput;
     // const secret = this.configService.get<string>('SECRET');
     const existUser = await this.prisma.user.findFirst({
@@ -44,12 +45,13 @@ export class UserService {
 
     const newUser = await this.prisma.user.create({
       data:{
-        firstName: firstName.trim(), 
-        lastName: lastName.trim(), 
-        nickName: nickName.trim(), 
-        email: email.trim(), 
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        nickName: nickName.trim(),
+        email: email.trim(),
         password: encryptedPassword,
         image,
+        rolId,
         // createdBy: conte
       }
     });

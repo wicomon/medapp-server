@@ -1,4 +1,4 @@
-export interface IContextUser {
+export interface IContextUserOld {
   idUser: number;
   email: string;
   firstName: string;

@@ -12,6 +12,7 @@ import { UserModule } from './user/user.module';
   imports: [
     ConfigModule.forRoot({
       // load: [EnvVaribales]
+      isGlobal: true,
     }),
 
     GraphQLModule.forRoot<ApolloDriverConfig>({

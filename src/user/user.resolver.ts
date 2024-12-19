@@ -5,11 +5,11 @@ import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { IContextUser } from 'src/auth/interfaces/context-user';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import { ContextUser } from 'src/auth/entities/auth.entity';
 
 @Resolver(() => User)
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class UserResolver {
   constructor(
     private readonly userService: UserService
@@ -28,7 +28,7 @@ export class UserResolver {
   @Mutation(() => Boolean, { name: 'userCreate' })
   createUser(
     @Args('createUserInput') createUserInput: CreateUserInput,
-    // @CurrentUser(/* [ValidRoles.admin] */) user: IContextUser,
+    @CurrentUser(/* [ValidRoles.admin] */) user: ContextUser,
   ) {
     return this.userService.create(createUserInput);
   }

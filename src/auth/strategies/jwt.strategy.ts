@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
@@ -24,6 +24,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     // console.log({payload})
     const {id} = payload;
     const user = await this.authService.validateUser(id);
+    return user;
+  }
+
+  handleRequest(err: Error | null, user: any, info: Error | null, context: ExecutionContext) {
+    if (err || !user) {
+      // console.error('Token validation error:', err || info.message);
+      throw err || new UnauthorizedException(info.message);
+    }
     return user;
   }
 }
