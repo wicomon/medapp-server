@@ -7,6 +7,7 @@ import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin
 import { AuthModule } from './auth/auth.module';
 import { CommonModule } from './common/common.module';
 import { UserModule } from './user/user.module';
+import { PatientModule } from './patient/patient.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { UserModule } from './user/user.module';
     AuthModule,
     CommonModule,
     UserModule,
+    PatientModule,
   ]
 })
 export class AppModule {}

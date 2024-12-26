@@ -33,11 +33,35 @@ type User {
   deletedBy: Int
 }
 
+type Patient {
+  id: Int!
+  firstName: String!
+  lastName: String!
+  email: String!
+  image: String
+  isActive: Boolean!
+  isDeleted: Boolean!
+  doctorId: Int!
+  createdAt: DateTime!
+  createdBy: Int
+  updatedAt: Float
+  updatedBy: Int
+  deletedAt: Float
+  deletedBy: Int
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 type Query {
   authValidateToken: ContextUser!
   authRevalidate: AuthResponse!
   userFindAll: [User!]!
   userFindById(id: Int!): User!
+  patientFindAll(id: Int!): [Patient!]!
+  patientFindById(id: Int!): Patient!
 }
 
 type Mutation {
@@ -47,6 +71,9 @@ type Mutation {
   userCreate(createUserInput: CreateUserInput!): Boolean!
   userUpdate(updateUserInput: UpdateUserInput!): Boolean!
   userDelete(id: Int!): Boolean!
+  patientCreate(createPatientInput: CreatePatientInput!): Patient!
+  patientUpdate(updatePatientInput: UpdatePatientInput!): Patient!
+  patientDelete(id: Int!): Patient!
 }
 
 input LoginInput {
@@ -80,5 +107,16 @@ input UpdateUserInput {
   image: String
   password: String
   rolId: Int
+  id: Int!
+}
+
+input CreatePatientInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input UpdatePatientInput {
+  """Example field (placeholder)"""
+  exampleField: Int
   id: Int!
 }

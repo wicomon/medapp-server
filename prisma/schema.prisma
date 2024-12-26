@@ -36,6 +36,7 @@ model User {
   rolId        Int
   rol          Rol           @relation(fields: [rolId], references: [id])
   appointments Appointment[]
+  patient Patient[]
 }
 
 model Patient {
@@ -47,17 +48,21 @@ model Patient {
   isActive     Boolean       @default(true)
   isDeleted    Boolean       @default(false)
   createdAt    DateTime      @default(now())
+  doctorId     Int
   createdBy    Int?
   updatedAt    DateTime?
   updatedBy    Int?
   deletedAt    DateTime?
   deletedBy    Int?
   appointments Appointment[]
+  user         User   @relation(fields: [doctorId], references: [id])
 }
 
 model Appointment {
   id        Int       @id() @default(autoincrement())
   date      DateTime
+  startTime DateTime
+  endTime   DateTime
   userId    Int
   patientId Int
   status    String    @db.VarChar(100)
