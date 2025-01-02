@@ -30,7 +30,7 @@ export class UserResolver {
     @Args('createUserInput') createUserInput: CreateUserInput,
     @CurrentUser(/* [ValidRoles.admin] */) user: ContextUser,
   ) {
-    return this.userService.create(createUserInput);
+    return this.userService.create(createUserInput, user);
   }
 
   @Mutation(() => Boolean, { name: 'userUpdate' })

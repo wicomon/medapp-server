@@ -39,6 +39,8 @@ type Patient {
   lastName: String!
   email: String!
   image: String
+  birth: Float!
+  birthString: String!
   isActive: Boolean!
   isDeleted: Boolean!
   doctorId: Int!
@@ -71,9 +73,9 @@ type Mutation {
   userCreate(createUserInput: CreateUserInput!): Boolean!
   userUpdate(updateUserInput: UpdateUserInput!): Boolean!
   userDelete(id: Int!): Boolean!
-  patientCreate(createPatientInput: CreatePatientInput!): Patient!
-  patientUpdate(updatePatientInput: UpdatePatientInput!): Patient!
-  patientDelete(id: Int!): Patient!
+  patientCreate(createPatientInput: CreatePatientInput!): Boolean!
+  patientUpdate(updatePatientInput: UpdatePatientInput!): Boolean!
+  patientDelete(id: Int!): Boolean!
 }
 
 input LoginInput {
@@ -111,12 +113,20 @@ input UpdateUserInput {
 }
 
 input CreatePatientInput {
-  """Example field (placeholder)"""
-  exampleField: Int!
+  firstName: String!
+  lastName: String!
+  email: String!
+  image: String
+  birth: Float!
+  birthString: String!
 }
 
 input UpdatePatientInput {
-  """Example field (placeholder)"""
-  exampleField: Int
+  firstName: String
+  lastName: String
+  email: String
+  image: String
+  birth: Float
+  birthString: String
   id: Int!
 }

@@ -5,6 +5,7 @@ import { PrismaService } from 'src/common/services/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import { AES, enc } from 'crypto-js';
 import * as encrypter from 'bcryptjs';
+import { ContextUser } from 'src/auth/entities/auth.entity';
 
 @Injectable()
 export class UserService {
@@ -23,7 +24,7 @@ export class UserService {
     return await this.prisma.user.findMany({});
   }
 
-  async create(createUserInput: CreateUserInput) {
+  async create(createUserInput: CreateUserInput, contextUser: ContextUser) {
     const {
       email,
       firstName,
@@ -52,7 +53,7 @@ export class UserService {
         password: encryptedPassword,
         image,
         rolId,
-        // createdBy: conte
+        createdBy: contextUser.id,
       }
     });
 

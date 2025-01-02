@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreatePatientInput } from './dto/create-patient.input';
 import { UpdatePatientInput } from './dto/update-patient.input';
 import { PrismaService } from 'src/common/services/prisma.service';
+import { ContextUser } from 'src/auth/entities/auth.entity';
 
 @Injectable()
 export class PatientService {
@@ -23,15 +24,30 @@ export class PatientService {
     return patients;
   }
 
-  create(createPatientInput: CreatePatientInput) {
-    return 'This action adds a new patient';
+  async create(createPatientInput: CreatePatientInput, contextUser: ContextUser) {
+    const existUser = await this.prisma.patient.findFirst({
+      where: { email: createPatientInput.email.trim(), isActive: true },
+    });
+    if(existUser) throw new BadRequestException('Paciente '+createPatientInput.email+' ya existe');
+
+    const newPatient = await this.prisma.patient.create({
+      data:{
+        ...createPatientInput,
+        doctorId: contextUser.id,
+        createdBy: contextUser.id,
+        birth: new Date(createPatientInput.birth),
+      }
+    });
+
+    return true
+
   }
 
-  update(id: number, updatePatientInput: UpdatePatientInput) {
+  update(id: number, updatePatientInput: UpdatePatientInput, user: ContextUser) {
     return `This action updates a #${id} patient`;
   }
 
-  remove(id: number) {
+  remove(id: number, user: ContextUser) {
     return `This action removes a #${id} patient`;
   }
 }

@@ -18,6 +18,13 @@ export class Patient {
   @Field(() => String, { nullable: true })
   image?: string;
 
+  @Field(() => Float)
+  birth: number;
+
+  @Field(() => String)
+  birthString: string;
+
+
   @Field(() => Boolean)
   isActive: boolean;
 
