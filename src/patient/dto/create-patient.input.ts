@@ -27,4 +27,24 @@ export class CreatePatientInput {
   @Field(() => String)
   @IsString()
   birthString: string;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  allergies?: string;
+
+  @Field(() => String)
+  @IsString()
+  phone: string;
+  
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  phone2?: string;
+
+  @Field(() => String)
+  @IsString()
+  address: string;
+
+  @Field(() => String)
+  @IsString()
+  gender: string;
 }

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePatientInput } from './dto/create-patient.input';
 import { UpdatePatientInput } from './dto/update-patient.input';
 import { PrismaService } from 'src/common/services/prisma.service';
@@ -11,8 +11,14 @@ export class PatientService {
 
   ) {}
 
-  findOne(id: number) {
-    return `This action returns a #${id} patient`;
+  async findOne(id: number) {
+    const patient = await this.prisma.patient.findFirst({
+      where: {
+        id
+      }
+    });
+    if(!patient) throw new NotFoundException('Paciente no encontrado');
+    return patient;
   }
 
   async findAll(idDoctor: number) {

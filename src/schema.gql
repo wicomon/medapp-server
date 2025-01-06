@@ -39,6 +39,11 @@ type Patient {
   lastName: String!
   email: String!
   image: String
+  allergies: String
+  phone: String!
+  phone2: String
+  address: String!
+  gender: String!
   birth: Float!
   birthString: String!
   isActive: Boolean!
@@ -119,6 +124,11 @@ input CreatePatientInput {
   image: String
   birth: Float!
   birthString: String!
+  allergies: String
+  phone: String!
+  phone2: String
+  address: String!
+  gender: String!
 }
 
 input UpdatePatientInput {
@@ -128,5 +138,10 @@ input UpdatePatientInput {
   image: String
   birth: Float
   birthString: String
+  allergies: String
+  phone: String
+  phone2: String
+  address: String
+  gender: String
   id: Int!
 }

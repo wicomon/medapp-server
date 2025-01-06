@@ -17,6 +17,9 @@ $ npm install
 # run container
 $ docker compose -f docker-compose.yml up
 
+#modify this: host all all all scram-sha-256 in pg_hba.conf
+host all all all trust
+
 # push schemas (first time)
 $ npx prisma db push
 ```

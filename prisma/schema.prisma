@@ -45,6 +45,11 @@ model Patient {
   lastName     String        @db.VarChar(250)
   email        String        @db.VarChar(100)
   image        String?       @db.VarChar(300)
+  allergies    String?       @db.VarChar(300)
+  phone        String        @db.VarChar(15)
+  phone2       String?       @db.VarChar(15)
+  address      String        @db.VarChar(300)
+  gender       String        @db.VarChar(10)
   birth        DateTime
   birthString  String        @db.VarChar(15)
   isActive     Boolean       @default(true)

@@ -18,6 +18,21 @@ export class Patient {
   @Field(() => String, { nullable: true })
   image?: string;
 
+  @Field(() => String, { nullable: true })
+  allergies?: string;
+
+  @Field(() => String)
+  phone: string;
+  
+  @Field(() => String, { nullable: true })
+  phone2?: string;
+
+  @Field(() => String)
+  address: string;
+
+  @Field(() => String)
+  gender: string;
+
   @Field(() => Float)
   birth: number;
 

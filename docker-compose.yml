@@ -10,6 +10,7 @@ services:
     environment:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
+      TZ: "America/New_York" # UTC-5 timezone
     container_name: medapp
     volumes:
       - ./postgres:/var/lib/postgresql/data
