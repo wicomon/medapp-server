@@ -13,6 +13,11 @@ export const CurrentUser = createParamDecorator(
   async (roles: ValidRoles[] = [], context: ExecutionContext) => {
     const ctx = GqlExecutionContext.create(context);
     const user: User = ctx.getContext().req.user;
+    // console.log({user})
+    if (!user) {
+      throw new InternalServerErrorException(`No user inside Request - Guard not implemented`);
+    }
+
     const userContext: ContextUser = {
       id: user.id,
       nickName: user.nickName,
@@ -23,9 +28,7 @@ export const CurrentUser = createParamDecorator(
       // roles: user.UserProfile.map( usrProfile => usrProfile.SystemProfile.Profile.description || '')
     };
     // console.log('decorator -----------------------------------', userContext);
-    if (!user) {
-      throw new InternalServerErrorException(`No user inside Request - Guard not implemented`);
-    }
+    
     // console.log({userContext})
     // console.log({ValidRoles})
     // console.log({roles})

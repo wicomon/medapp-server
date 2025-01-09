@@ -66,19 +66,22 @@ model Patient {
 }
 
 model Appointment {
-  id        Int       @id() @default(autoincrement())
-  date      DateTime
-  startTime DateTime
-  endTime   DateTime
-  userId    Int
-  patientId Int
-  status    String    @db.VarChar(100)
-  createdAt DateTime  @default(now())
-  createdBy Int?
-  updatedAt DateTime?
-  updatedBy Int?
-  deletedAt DateTime?
-  deletedBy Int?
-  user      User      @relation(fields: [userId], references: [id])
-  patient   Patient   @relation(fields: [patientId], references: [id])
+  id          Int       @id() @default(autoincrement())
+  dateString  String    @db.VarChar(15)
+  startTime   DateTime
+  endTime     DateTime
+  description String?   @db.VarChar(255)
+  notes       String?   @db.VarChar(255)
+  userId      Int
+  patientId   Int
+  status      String    @db.VarChar(20)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  createdBy   Int?
+  updatedAt   DateTime?
+  updatedBy   Int?
+  deletedAt   DateTime?
+  deletedBy   Int?
+  user        User      @relation(fields: [userId], references: [id])
+  patient     Patient   @relation(fields: [patientId], references: [id])
 }
