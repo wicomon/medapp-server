@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppointmentService } from './appointment.service';
+import { PrismaService } from 'src/common/services/prisma.service';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { CreateAppointmentInput } from './dto/create-appointment.input';
 import { ContextUser } from 'src/auth/entities/auth.entity';
-import { PrismaClient as PrismaService } from '@prisma/client';
 
 describe('AppointmentService', () => {
   let service: AppointmentService;
@@ -17,10 +17,12 @@ describe('AppointmentService', () => {
           provide: PrismaService,
           useValue: {
             appointment: {
-              findUnique: jest.fn().mockResolvedValue(null),
-              findMany: jest.fn().mockResolvedValue([]),
-              findFirst: jest.fn().mockResolvedValue(null),
-              create: jest.fn().mockResolvedValue(true),
+              findUnique: jest.fn(),
+              findMany: jest.fn(),
+              findFirst: jest.fn(),
+              create: jest.fn(),
+              update: jest.fn(),
+              delete: jest.fn(),
             },
           },
         },
@@ -37,14 +39,15 @@ describe('AppointmentService', () => {
 
   describe('findOne', () => {
     it('should return an appointment if found', async () => {
-      const appointment = { id: 1, patientId: 1, dateString: '2023-10-10' };
-      (prismaService.appointment.findUnique as jest.Mock).mockResolvedValue(appointment);
+      const result = { id: 1, dateString: '2023-10-10' };
 
-      expect(await service.findOne(1)).toEqual(appointment);
+      (jest.spyOn(prismaService.appointment, 'findUnique') as jest.Mock).mockResolvedValue(result);
+
+      expect(await service.findOne(1)).toEqual(result);
     });
 
     it('should throw NotFoundException if appointment not found', async () => {
-      (prismaService.appointment.findUnique as jest.Mock).mockResolvedValue(null);
+      jest.spyOn(prismaService.appointment, 'findUnique').mockResolvedValue(null);
 
       await expect(service.findOne(1)).rejects.toThrow(NotFoundException);
     });
@@ -52,10 +55,13 @@ describe('AppointmentService', () => {
 
   describe('findAll', () => {
     it('should return an array of appointments', async () => {
-      const appointments = [{ id: 1, patientId: 1, dateString: '2023-10-10' }];
-      (prismaService.appointment.findMany as jest.Mock).mockResolvedValue(appointments);
+      const result = [{ id: 1, dateString: '2023-10-10' }];
 
-      expect(await service.findAll()).toEqual(appointments);
+      (jest.spyOn(prismaService.appointment, 'findMany') as jest.Mock).mockResolvedValue([{ id: 1, dateString: '2023-10-10' }]);
+      const serviceResult = await service.findAll();
+      // console.log({serviceResult})
+      expect(serviceResult).toEqual(result);
+
     });
   });
 
@@ -67,11 +73,14 @@ describe('AppointmentService', () => {
         startTime: 1736280112202,
         endTime: 1736280112202,
       };
-      const contextUser: ContextUser = { id: 1, firstName: 'testuser', email: 'w.cordova@cheil.com', lastName: 'testuser', isActive: true, nickName: 'w.cordova'};
-      (prismaService.appointment.findFirst as jest.Mock).mockResolvedValue(null);
-      (prismaService.appointment.create as jest.Mock).mockResolvedValue(true);
+      const contextUser: ContextUser = { id: 1, firstName: 'testuser', email: 'w.cordova@cheil.com', lastName: 'testuser', isActive: true, nickName: 'w.cordova' };
+      const result = { id: 1, ...createAppointmentInput };
 
-      expect(await service.create(createAppointmentInput, contextUser)).toEqual(true);
+      jest.spyOn(prismaService.appointment, 'findFirst').mockResolvedValue(null);
+      (jest.spyOn(prismaService.appointment, 'create') as jest.Mock).mockResolvedValue(result);
+      const serviceResult = await service.create(createAppointmentInput, contextUser);
+      // console.log({serviceResult2: service})
+      expect(serviceResult).toEqual(true);
     });
 
     it('should throw BadRequestException if appointment already exists', async () => {
@@ -81,11 +90,13 @@ describe('AppointmentService', () => {
         startTime: 1736280112202,
         endTime: 1736280112202,
       };
-      const contextUser: ContextUser = { id: 1, firstName: 'testuser', email: 'w.cordova@cheil.com', lastName: 'testuser', isActive: true, nickName: 'w.cordova'};
+      const contextUser: ContextUser = { id: 1, firstName: 'testuser', email: 'w.cordova@cheil.com', lastName: 'testuser', isActive: true, nickName: 'w.cordova' };
 
-      (prismaService.appointment.findFirst as jest.Mock).mockResolvedValue({ id: 1 });
+      (jest.spyOn(prismaService.appointment, 'findFirst') as jest.Mock).mockResolvedValue({ id: 1 });
 
-      await expect(service.create(createAppointmentInput, contextUser)).rejects.toThrow(BadRequestException);
+      const serviceResult = service.create(createAppointmentInput, contextUser);
+
+      await expect(serviceResult).rejects.toThrow(BadRequestException);
     });
   });
 });
