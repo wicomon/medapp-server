@@ -30,6 +30,13 @@ export class PatientService {
     return patients;
   }
 
+  async findByDni(dni: string) {
+    const patients = await this.prisma.patient.findFirst({
+      where: { dni }
+    });
+    return patients;
+  }
+
   async create(createPatientInput: CreatePatientInput, contextUser: ContextUser) {
     const existUser = await this.prisma.patient.findFirst({
       where: { email: createPatientInput.email.trim(), isActive: true },

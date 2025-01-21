@@ -14,6 +14,10 @@ export class CreatePatientInput {
 
   @Field(() => String)
   @IsString()
+  dni: string;
+
+  @Field(() => String)
+  @IsString()
   email: string;
 
   @Field(() => String, {nullable: true})
